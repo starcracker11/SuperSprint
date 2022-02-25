@@ -1,0 +1,16 @@
+OBJECTIVE : draw a track on the screen
+            create a track, polgyon and a point class
+
+-- a Track is a collection of Polygon objects
+
+    -- has method load track data which creates its array of polygon objects
+    -- has method to return all objects / Polygons to game renderer
+
+-- a Polygon is a collection of Point objects
+
+-- a Point is a x and a y
+
+CarGame will have a n instance of track object all data initially hard coded
+CAraGame will render the track
+
+gamecontroller has a property of cargame
