@@ -11,7 +11,7 @@ class Car(GameMob.GameMob):
         tmp_car_points = [(0, 0), (self.width, 0), (self.width, self.height), (0, self.height)]
         self.car_polygons = []
         self.car_polygons.append(polygonLib.Polygon(tmp_car_points))
-        self.angle = 90
+        self.angle = 0
         self.position = Point.Point(328, 78)
 
     def get_polygons(self):
