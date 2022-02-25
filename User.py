@@ -1,8 +1,9 @@
 import GameMob
+import Car as carLib
 
 
 class User(object):
-    def __init__(self, Name, Lives):
-        self.name = str(Name)
-        self.lives = int(Lives)
-        self.car = Car.Car(10, 10, 0, 0, 10, 10, (255, 255, 255))
+    def __init__(self, name):
+        self.name = str(name)
+        # self.lives = int(Lives)
+        self.car = carLib.Car(25, 50, 0, 0, 10, 10, (255, 0, 0))

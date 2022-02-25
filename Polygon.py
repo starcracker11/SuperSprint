@@ -1,10 +1,19 @@
-class Polygon(object):
-    def __init__(self):
-        # this is hard coded but in the future will be loaded truigh the setter function
-        self.points = [Point(10, 10), Point(20, 20), Point(30, 30), Point(40, 40), Point(50, 50), Point(60, 60)]
-# probably not needed
-    def Get_Points(self):
+import Point as pointLib
 
+
+class Polygon(object):
+    def __init__(self, points=[]):
+        self.points = []
+        self.set_points_from_tuples(points)
+        print("created polygon with points: " + str(len(self.points)))
+
+    def get_points(self):
         return self.points
+
     def set_points(self, array):
         self.points = array
+
+    def set_points_from_tuples(self, points=[]):
+        self.points = []
+        for tmp_tuple in points:
+            self.points.append(pointLib.Point(tmp_tuple[0], tmp_tuple[1]))
