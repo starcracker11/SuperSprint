@@ -25,4 +25,3 @@ class Point(object):
             return Point(x_new + cx, y_new + cy)
         else:
             return self
-# test

@@ -3,7 +3,7 @@ import GameRenderer as gameRenderer
 import pygame
 import time
 import TextRenderer as textLib
-
+import TitleScreenRenderer as titlesLib
 
 class GameFrontend:
 
@@ -30,8 +30,9 @@ class GameFrontend:
         self.car_game = carGameLib.CarGame()
         self.screen = pygame.display.set_mode((self.ScreenW, self.ScreenH))  # , pygame.FULLSCREEN)
         self.game_renderer = gameRenderer.GameRenderer(self.car_game, self.screen)
+        self.title_screen_renderer = titlesLib.TitleScreenRenderer(self.screen)
         self.text_renderer = textLib.TextRenderer(self.screen)
-        self.mode = 'running_game'
+        self.mode = 'title_screen'
 
     def start(self):
         self.car_game.reset()
@@ -81,7 +82,10 @@ class GameFrontend:
         pygame.quit()
 
     def update_title_screen(self):
-        print("updating title screen")
+        self.title_screen_renderer.update()
+        self.title_screen_renderer.render()
+        if self.wDown:
+            self.mode = 'running_game'
 
     def update_options_screen(self):
         print("updating options screen")
@@ -89,9 +93,11 @@ class GameFrontend:
     def update_game_over_screen(self):
         # display game over message
         self.text_renderer.y_line_offset = 100
+        # TODO: make it show the correct player who won
         self.text_renderer.render_text("PLAYER ONE", 10)
         self.text_renderer.y_line_offset += 150
         self.text_renderer.render_text("  WON")
+        # TODO: make 'space' or accelerate button leave game over screen
 
     def update_game(self):
         if not self.game_paused:
@@ -176,6 +182,8 @@ class GameFrontend:
                     # TODO: so it can safely exit pygame (end loops etc)
                     # TODO: REMOVE STRINGS AND REPLACE WITH CONTANTS
                     if self.mode == 'game_over_screen':
+                        self.mode = 'title_screen'
+                    elif self.mode == 'title_screen':
                         self.running = False
                     elif self.mode == 'running_game':
                         self.mode = 'game_over_screen'

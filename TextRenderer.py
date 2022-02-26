@@ -10,10 +10,8 @@ import BaseRenderer as baseRenderer
 class TextRenderer(baseRenderer.BaseRenderer):
     def __init__(self, screen):
         super().__init__(screen)
-        self.car_game_title = []
         self.alpha_characters = []
         self.numeric_characters = []
-        self.raw_vector_data = []
         self.load_raw_vector_data()
         self.y_line_offset = 0
 
