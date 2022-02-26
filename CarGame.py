@@ -7,8 +7,8 @@ import User as userLib
 class CarGame(object):
     def __init__(self):
         self.track = trackLib.Track()
-        self.users = [userLib.User('Player 1', (255, 0, 0)),
-                      userLib.User('Player 2', (0, 255, 0))]
+        self.users = [userLib.User('PLAYER 1', (255, 0, 0)),
+                      userLib.User('PLAYER 2', (0, 255, 0))]
         self.winning_user = userLib.User
 
     # reposition users at stat of track

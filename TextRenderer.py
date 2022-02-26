@@ -11,23 +11,26 @@ class TextRenderer(baseRenderer.BaseRenderer):
     def __init__(self, screen):
         super().__init__(screen)
         self.car_game_title = []
-        self.characters = []
+        self.alpha_characters = []
+        self.numeric_characters = []
         self.raw_vector_data = []
         self.load_raw_vector_data()
         self.y_line_offset = 0
 
     def load_raw_vector_data(self):
-        for raw_data_char in raw_data:
-            self.raw_vector_data_append(raw_data_char)
+        for raw_data_char in raw_alpha_char_data:
+            self.raw_vector_data_append(raw_data_char, self.alpha_characters)
+        for raw_data_char in raw_numeric_char_data:
+            self.raw_vector_data_append(raw_data_char, self.numeric_characters)
 
     # loads an individual chunk of line data for a character
-    def raw_vector_data_append(self, char_data):
+    def raw_vector_data_append(self, char_data=[], char_vector=[]):
         new_lines = []
         for item in char_data:
             new_lines.append(Line.Line(pointLib.Point(item[0][0], item[0][1]),
                                        pointLib.Point(item[1][0], item[1][1])))
 
-        self.characters.append(charLib.VectorCharacter(new_lines))
+        char_vector.append(charLib.VectorCharacter(new_lines))
 
     def get_vector_object_for_char(self, required_char):
         # get ASCII value of character
@@ -35,32 +38,27 @@ class TextRenderer(baseRenderer.BaseRenderer):
         # 'A' starts at 65 in the character set, so offset required char with that
         as_ascii = ord(required_char)
         if as_ascii - 65 >= 0:
-            return self.characters[as_ascii - 65]
+            return self.alpha_characters[as_ascii - 65]
+        elif 48 <= as_ascii <= 57:
+            return self.numeric_characters[as_ascii - 48]
         else:
             return None
 
     def render_text(self, msg, offset_x=0, offset_y=0):
         start_position_x = offset_x
-        font_gap = (w + w / 2 + w / 3) * self.scale
-        for c in msg:
+        font_gap = (w + w / 3) * self.scale
+        for c in msg.upper():
             vector_char = self.get_vector_object_for_char(c)
             if vector_char is not None:
                 for line in vector_char.lines:
                     self.render_line(line, start_position_x, self.y_line_offset + offset_y)
-            start_position_x += font_gap
 
-    def render(self):
-        self.y_line_offset = 100
-        self.render_text("PLAYER ONE")
-        self.y_line_offset += 150
-        self.render_text("  WON")
-        # self.y_line_offset += 150
-        # self.render_text("WXYZ")
+            start_position_x += font_gap
 
 # this is all point data for character set
 w = 50
 h = 100
-raw_data = [
+raw_alpha_char_data = [
     # char A
     [((w / 2, 0), (0, h / 5)),
      ((0, h / 5), (0, h)),
@@ -199,4 +197,56 @@ raw_data = [
     [((0, 0), (w, 0)),
      ((w, 0), (0, h)),
      ((0, h), (w, h))],
+]
+
+raw_numeric_char_data = [
+    # char 0
+    [((0, 0), (w, 0)),
+     ((0, 0), (0, h)),
+     ((0, h), (w, h)),
+     ((w, 0), (w, h))],
+    # char 1
+    [((w / 2, 0), (0, h/4)),
+     ((w / 2, 0), (w / 2, h)),
+     ((w / 4, h), (w / 2 + w / 4, h))],
+    # char 2
+    [((0, 0), (w, 0)),
+     ((w, 0), (w, h/2)),
+     ((0, h/2), (w, h/2)),
+     ((0, h/2), (0, h)),
+     ((0, h), (w, h))],
+    # char 3
+    [((0, 0), (w, 0)),
+     ((w, 0), (w, h)),
+     ((0, h/2), (w, h/2)),
+     ((0, h), (w, h))],
+    # char 4
+    [((0, 0), (0, h/2)),
+     ((0, h / 2), (w, h / 2)),
+     ((w, 0), (w, h))],
+    # char 5
+    [((0, 0), (w, 0)),
+     ((0, 0), (0, h/2)),
+     ((0, h/2), (w, h/2)),
+     ((w, h/2), (w, h)),
+     ((0, h), (w, h))],
+    # char 6
+    [((w, h/2), (w, h)),
+     ((0, h / 2), (w, h / 2)),
+     ((0, h), (w, h)),
+     ((0, 0), (0, h))],
+    # char 7
+    [((0, 0), (w, 0)),
+     ((0, h), (w, 0))],
+    # char 8
+    [((0, 0), (w, 0)),
+     ((0, 0), (0, h)),
+     ((0, h / 2), (w, h / 2)),
+     ((0, h), (w, h)),
+     ((w, 0), (w, h))],
+    # char 9
+    [((0, 0), (w, 0)),
+     ((0, 0), (0, h/2)),
+     ((0, h / 2), (w, h / 2)),
+     ((w, 0), (w, h))]
 ]

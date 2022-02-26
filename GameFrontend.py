@@ -88,8 +88,10 @@ class GameFrontend:
 
     def update_game_over_screen(self):
         # display game over message
-        self.text_renderer.render()
-
+        self.text_renderer.y_line_offset = 100
+        self.text_renderer.render_text("PLAYER ONE", 10)
+        self.text_renderer.y_line_offset += 150
+        self.text_renderer.render_text("  WON")
 
     def update_game(self):
         if not self.game_paused:

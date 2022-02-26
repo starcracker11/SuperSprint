@@ -12,7 +12,8 @@ class GameRenderer(baseRenderer.BaseRenderer):
         self.lap_text_renderer.scale = 0.2
 
     def render(self):
-        self.lap_text_renderer.render_text("LAP ", 10, 10)
+        self.lap_text_renderer.render_text(self.car_game.users[0].name + " LAP " +
+                                           str(self.car_game.users[0].get_lap_counter()), 10, 10)
         # loop through track polygons and draw them
         for poly in self.car_game.track.polygons:
             self.render_polygon(poly)
