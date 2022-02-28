@@ -12,9 +12,10 @@ class GameFrontend:
         self.game_state = "start_screen"
         self.game_paused = False
         self.running = False
+        self.full_screen_window = False
         pygame.init()
-        self.ScreenH = 720
-        self.ScreenW = 1280
+        self.ScreenH = 500
+        self.ScreenW = 660
         self.GameSpeed = 60
         self.wDown = False
         self.aDown = False
@@ -28,7 +29,7 @@ class GameFrontend:
         # so for in the simple case of 1 player and 2 player game, we would provide it with
         # 1 or 2 users accordingly
         self.car_game = carGameLib.CarGame()
-        self.screen = pygame.display.set_mode((self.ScreenW, self.ScreenH))  # , pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((self.ScreenW, self.ScreenH), pygame.RESIZABLE)
         self.game_renderer = gameRenderer.GameRenderer(self.car_game, self.screen)
         self.title_screen_renderer = titlesLib.TitleScreenRenderer(self.screen)
         self.text_renderer = textLib.TextRenderer(self.screen)
@@ -53,9 +54,6 @@ class GameFrontend:
 
             # this can be scrapped:
             self.handle_mouse_input()
-
-            # clear screen:
-            self.screen.fill((255, 255, 255))
 
             if self.mode == 'running_game':
                 self.update_game()
@@ -82,6 +80,7 @@ class GameFrontend:
         pygame.quit()
 
     def update_title_screen(self):
+        self.screen.fill((220, 220, 220))
         self.title_screen_renderer.update()
         self.title_screen_renderer.render()
         if self.wDown:
@@ -91,6 +90,7 @@ class GameFrontend:
         print("updating options screen")
 
     def update_game_over_screen(self):
+        self.screen.fill((200, 200, 200))
         # display game over message
         self.text_renderer.y_line_offset = 100
         # TODO: make it show the correct player who won
@@ -108,6 +108,15 @@ class GameFrontend:
             self.mode = 'game_over_screen'
         # this is doing all the drawing
         self.game_renderer.render()
+
+    def set_game_scale_based_on_window_size(self, size):
+        # 1:1 window/game-size ratio with screen off 500x600
+        # scale to the largest dimension so track is always visible
+        if size[0] > size[1]:
+            self.game_renderer.scale = size[1]/self.ScreenH
+        else:
+            self.game_renderer.scale = size[o] / self.ScreenW
+
 
     def handle_mouse_input(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -130,9 +139,10 @@ class GameFrontend:
         # handle user input for player 1
         user_0 = self.car_game.users[0]
         if self.aDown:
-            user_0.car.increase_turn_angle()
+            user_0.car.turn_left()
         elif self.dDown:
-            user_0.car.decrease_turn_angle()
+            user_0.car.turn_right()
+
         if self.wDown:
             user_0.car.increase_acceleration()
         else:
@@ -149,6 +159,8 @@ class GameFrontend:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.VIDEORESIZE:
+                self.set_game_scale_based_on_window_size(event.size)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.click = True
@@ -169,6 +181,14 @@ class GameFrontend:
                     self.aDown = False
                 elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                     self.dDown = False
+                elif event.key == pygame.K_F11:
+                    self.full_screen_window = not self.full_screen_window
+                    # can't do this until screen objects are passed in during draw operations...which they should be
+                    # update_screen = pygame.display.toggle_fullscreen()
+                elif event.key == pygame.K_F1:
+                    self.car_game.track.save("test_track_file.json")
+                elif event.key == pygame.K_F2:
+                    self.car_game.track.load("test_track_file.json")
                 elif event.key == pygame.K_w or event.key == pygame.K_UP or event.key == pygame.K_SPACE \
                         or event.key == pygame.K_LCTRL:
                     self.wDown = False

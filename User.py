@@ -28,3 +28,5 @@ class User(object):
         self.lap_counter += 1
         print("incrementing lap counter for " + self.name + ": " + str(self.lap_counter))
 
+    def update_state(self, track):
+        self.car.update_state()

@@ -4,9 +4,14 @@ import copy
 
 
 class Polygon(object):
-    def __init__(self, points=[]):
+    def __init__(self, points=[], colour=(0, 0, 0)):
         self.points = []
+
+        # lines are generated from points
         self.lines = []
+
+        self.colour = colour
+        # this is an original copy of all the pointss
         self.untouched_Points = []
         self.set_points_from_tuples(points)
         self.convert_points_into_lines(self.points)
@@ -25,6 +30,12 @@ class Polygon(object):
         for tmp_tuple in points:
             self.points.append(pointLib.Point(tmp_tuple[0], tmp_tuple[1]))
         self.untouched_Points = copy.copy(self.points)
+
+    def get_points_as_tuples(self, offset_x=0, offset_y=0, scale=1):
+        return_list = []
+        for point in self.points:
+            return_list.append(((point.x + offset_x) * scale, (point.y + offset_y) * scale))
+        return return_list
 
     def set_angle(self, angle, center_x, center_y):
         self.angle = angle

@@ -79,9 +79,9 @@ class Line:
         line.point_2.y -= offset_y
         return return_val
 
-    def on_segment(self, point):
-        if (point.x <= max(self.point_1.x, self.point_2.x) and point.x >= min(self.point_1.x, self.point_2.x)) \
-                and (point.y <= max(self.point_1.y, self.point_2.y) and point.y >= min(self.point_1.y, self.point_2.y)):
+    def on_segment(self, p, q, r):
+        if ((q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
+                (q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
             return True
         return False
 
@@ -101,3 +101,6 @@ class Line:
             return top / bottom
         else:
             return 0
+
+    def get_points_as_tuples(self):
+        return [ (self.point_1.x, self.point_1.y), (self.point_2.x, self.point_2.y) ]

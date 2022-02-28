@@ -2,29 +2,43 @@ import math
 
 import Track as trackLib
 import User as userLib
+import CPUUserController as cpuUSer
 
 
 class CarGame(object):
     def __init__(self):
         self.track = trackLib.Track()
-        self.users = [userLib.User('PLAYER 1', (255, 0, 0)),
-                      userLib.User('PLAYER 2', (0, 255, 0))]
+        self.users = []
+        # self.users = [userLib.User('PLAYER 1', (200, 200, 0)),
+        #              userLib.User('PLAYER 2', (0, 0, 200))]
+
+        self.users.append(userLib.User('PLAYER 1', (200, 200, 0)))
+        self.users.append(cpuUSer.CPUUserController('CPU 1', (0, 100, 150)))
+        # self.users.append(cpuUSer.CPUUserController('CPU 2', (0, 100, 150)))
+        # self.users.append(cpuUSer.CPUUserController('CPU2', (50, 100, 150)))
+
         self.winning_user = userLib.User
 
     # reposition users at stat of track
     def reset(self):
         self.winning_user = None
+        starting_line = self.track.get_starting_line()
+        # TODO: using y = mx + c we might be able to find point along the starting_line
+        tmp_y_shift = starting_line.line.point_1.y + 40
         for user in self.users:
             # TODO: center the cars so they appear in a row along the starting line
-            user.car.position.x = self.track.starting_line_track_marker.line.point_1.x
-            user.car.position.y = self.track.starting_line_track_marker.line.point_1.y
-            user.set_track_marker(self.track.starting_line_track_marker)
+            user.car.position.x = starting_line.line.point_1.x
+            user.car.position.y = tmp_y_shift
+            user.set_track_marker(starting_line)
             user.reset_lap_counter()
+            tmp_y_shift += 20
 
     def is_game_over(self):
         return self.winning_user is not None
 
     def update(self):
+        cpuUSer.get_angle_to_marker(self.track, self.users[0].current_track_marker, self.users[0].car.position.x, self.users[0].car.position.y)
+        # print('angle: ' + str(self.users[0].car.angle))
         # self.track.update()
         for user in self.users:
             # we now need to determine if a car has reached a track-marker
@@ -39,7 +53,7 @@ class CarGame(object):
                     if track_marker == self.track.track_markers[0]:
                         # it is but have we ever left it?
                         # we could have marked this last one if we had passed the second one
-                        if user.get_track_marker() == self.track.ending_line_track_marker:
+                        if user.get_track_marker() == self.track.get_ending_line():
                             print("CURCUIT COMPLETE")
                             # so just reset the users current marker...
                             # TODO: maybe increment a lap counter
@@ -54,20 +68,18 @@ class CarGame(object):
                             or user.get_track_marker().index == track_marker.index + 1:
                         user.set_track_marker(track_marker)
 
-            user.car.update_state()
-
             # check for collision
-            # loop through each user
             for poly in self.track.polygons:
                 for track_line in poly.lines:
+                    # this can be removed once everything is working
                     track_line.set_collision_flag(False)
-                    for user in self.users:
-                        # we could use the collision_line to work out the angle of incidence (bounce angle)
-                        car_line = user.car.collision_line.lines[0]
-                        for car_line in user.car.car_polygons[0].lines:
-                            # if True:
-                            if track_line.check_intersect(car_line, user.car.position.x, user.car.position.y):
-                                self.handle_car_collision(track_line, user)
+                    # we could use the collision_line to work out the angle of incidence (bounce angle)
+                    car_line = user.car.collision_line.lines[0]
+                    for car_line in user.car.car_polygons[0].lines:
+                        if track_line.check_intersect(car_line, user.car.position.x, user.car.position.y):
+                            self.handle_car_collision(track_line, user)
+
+            user.update_state(self.track)
 
             # debug only: show crossed state for player 1
             for track_marker in self.track.track_markers:

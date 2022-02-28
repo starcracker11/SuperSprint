@@ -1,3 +1,17 @@
+New TODO:
+(continued on from list on computer)
+TRack objects ideas:
+1. speed up boost, provides temporary high acceleration?
+2. oil: sets car spinning
+3. water: slows down car
+4. points
+5. guns: shoot at other players to slow them down or destroy them, providing time to overtake
+
+SEARCH FOR
+ TODO:
+...in all files
+
+
 OBJECTIVE : draw a track on the screen
             create a track, polgyon and a point class
 

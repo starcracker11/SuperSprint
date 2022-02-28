@@ -1,6 +1,10 @@
+import Line
+import Point
+import Polygon
 import Polygon as polygon
 import Point as pointLib
 import Line as lineLib
+import json
 
 
 # this class define a location on the track where a player
@@ -22,10 +26,14 @@ class TrackMarker:
 # to understand how to make classes go here: https://www.w3schools.com/python/python_classes.asp
 class Track(object):
     def __init__(self):
+        # the two main data elements
         self.polygons = [polygon.Polygon]
+        self.track_markers = [TrackMarker]
+
+        # the following are just methods to easily get to first and last marker
         self.starting_line_track_marker = lineLib.Line
         self.ending_line_track_marker = lineLib.Line
-        self.track_markers = [TrackMarker]
+
         # TODO: again this would need to be loaded in along with track data
         self.max_laps = 3
         # ...if it was a line, we could also workout the starting direction by calculating the perpendicular
@@ -33,6 +41,7 @@ class Track(object):
 
         # for now, we will have to hardcode any polygons
         self.generate_track()
+        # self.load("test_track_file.json")
         # really this should be a polygon - a 'starting line'
         # and treated separately to the parts of the track
 
@@ -54,7 +63,8 @@ class Track(object):
                             (336, 189),
                             (508, 358), (493, 171)]
 
-        self.polygons = [polygon.Polygon(tmp_outer_points), polygon.Polygon(tmp_inner_points)]
+        self.polygons = [polygon.Polygon(tmp_outer_points, (125, 125, 125)),
+                         polygon.Polygon(tmp_inner_points, (0, 100, 0))]
         # the problem we now have is that polygons alone aren't much use
         # we now need to add properties - for now we will consider the 'road' to be anywhere
         # and any collection with any polygon means 'not on road'
@@ -67,8 +77,55 @@ class Track(object):
         # so we can determine if car has completed a circuit
         # we need a minimum of 3 markers
         # these will not be visible (unless debugging) to the players
-        self.starting_line_track_marker = TrackMarker(1, lineLib.Line(pointLib.Point(329, 54), pointLib.Point(328, 162)))
-        self.ending_line_track_marker = TrackMarker(3, lineLib.Line(pointLib.Point(508, 360), pointLib.Point(518, 456)))
+        self.starting_line_track_marker = TrackMarker(0,
+                                                      lineLib.Line(pointLib.Point(329, 54), pointLib.Point(328, 162)))
+        self.ending_line_track_marker = TrackMarker(2, lineLib.Line(pointLib.Point(508, 360), pointLib.Point(518, 456)))
         self.track_markers = [self.starting_line_track_marker,
-                              TrackMarker(2, lineLib.Line(pointLib.Point(158, 364), pointLib.Point(156, 458))),
+                              TrackMarker(1, lineLib.Line(pointLib.Point(158, 364), pointLib.Point(156, 458))),
                               self.ending_line_track_marker]
+
+    def get_starting_line(self):
+        return self.track_markers[0]
+
+    def get_ending_line(self):
+        return self.track_markers[2]
+
+    def save(self, file_name):
+        print('saving track data to file')
+        # ANY CHANGE HERE MUST BE REFLECTED IN THE LOAD FUNCTION
+        with open(file_name, 'w') as json_file:
+            # write out all the track polygons
+            tmp_tuples = []
+
+            tmp_poly_tuples = []
+            for poly in self.polygons:
+                tmp_poly_tuples.append((poly.get_points_as_tuples(), poly.colour))
+            tmp_tuples.append(tmp_poly_tuples)
+
+            tmp_tm_tuples = []
+            for track_marker in self.track_markers:
+                tmp_tm_tuples.append((track_marker.index, track_marker.line.get_points_as_tuples()))
+            tmp_tuples.append(tmp_tm_tuples)
+
+            json.dump(tmp_tuples, json_file)
+
+    def load(self, file_name):
+        print('Loading track data from file')
+        # ANY CHANGE HERE MUST BE REFLECTED IN THE SAVE FUNCTION
+        # clear arrays:
+        self.polygons = []
+        self.track_markers = []
+        with open(file_name, 'r') as json_file:
+            # write out all the track polygons
+            # for poly in self.track.polygons:
+            main_data_structure = json.load(json_file)
+            for poly_raw in main_data_structure[0]:
+                tmp_poly = Polygon.Polygon(poly_raw[0], poly_raw[1])
+                self.polygons.append(tmp_poly)
+
+            for track_marker_raw in main_data_structure[1]:
+                tmp_p1 = Point.Point(track_marker_raw[1][0][0], track_marker_raw[1][0][1])
+                tmp_p2 = Point.Point(track_marker_raw[1][1][0], track_marker_raw[1][1][1])
+                tmp_line = Line.Line(tmp_p1, tmp_p2)
+                tmp_track_marker = TrackMarker(track_marker_raw[0], tmp_line)
+                self.track_markers.append(tmp_track_marker)

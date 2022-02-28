@@ -2,7 +2,7 @@ import pygame
 import CarGame as carGameLib
 import BaseRenderer as baseRenderer
 import TextRenderer as textLib
-
+import copy
 
 class GameRenderer(baseRenderer.BaseRenderer):
     def __init__(self, car_game, screen):
@@ -12,8 +12,16 @@ class GameRenderer(baseRenderer.BaseRenderer):
         self.lap_text_renderer.scale = 0.2
 
     def render(self):
+        # clear screen:
+        self.screen.fill((0, 100, 0))
+
         self.lap_text_renderer.render_text(self.car_game.users[0].name + " LAP " +
                                            str(self.car_game.users[0].get_lap_counter()), 10, 10)
+
+        if len(self.car_game.users) > 1:
+            self.lap_text_renderer.render_text(self.car_game.users[1].name + " LAP " +
+                                           str(self.car_game.users[1].get_lap_counter()), 500, 10)
+
         # loop through track polygons and draw them
         for poly in self.car_game.track.polygons:
             self.render_polygon(poly)
@@ -27,5 +35,17 @@ class GameRenderer(baseRenderer.BaseRenderer):
         for user in self.car_game.users:
             for poly in user.car.car_polygons:
                 self.render_polygon(poly, user.car.position.x, user.car.position.y, user.car.colour)
+
+            # hack in our sweep lines
+            car_line = user.car.get_collision_line()
+            tmp_line = copy.copy(car_line)
+
+            # left hand aI areas
+            tmp_line.point_2 = car_line.point_2.rotate(-45, car_line.point_1.x, car_line.point_1.y)
+            self.render_line(tmp_line, user.car.position.x, user.car.position.y)
+
+            # right hand aI areas
+            tmp_line.point_2 = car_line.point_2.rotate(45, car_line.point_1.x, car_line.point_1.y)
+            self.render_line(tmp_line, user.car.position.x, user.car.position.y)
 
 
